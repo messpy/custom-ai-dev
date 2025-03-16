@@ -1,24 +1,27 @@
-from conversation import Conversation
-from llm_provider import LLMProvider
+import os
+from dotenv import load_dotenv
+from utils.checker import check_api_response
 
-def main():
-    conv = Conversation()
-    llm = LLMProvider()  # Gemini を利用する場合。必要に応じてモデル名を指定可能
-
-    print("チャットボットです。何か質問はありますか？（終了するには「終了」と入力してください）")
-    while True:
-        user_input = input("質問: ")
-        if user_input.strip() == "終了":
-            print("チャット終了")
-            break
-        conv.add_message("user", user_input)
-        response = llm.send_message(user_input)
-        print("応答:", response)
-        conv.add_message("assistant", response)
-
-    # 会話履歴をJSONファイルに保存
-    conv.save_to_file("conversation_history.json")
-    print("会話履歴を conversation_history.json に保存しました。")
+# .envファイルを読み込む
+load_dotenv()
 
 if __name__ == "__main__":
-    main()
+    print("環境チェックおよびAPIレスポンスの確認を開始します...")
+
+    # 環境変数の確認
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        print("環境変数 GEMINI_API_KEY が設定されていません！")
+        exit(1)
+
+    print("環境変数 GEMINI_API_KEY が設定されています。")
+
+    # APIレスポンスの確認
+    try:
+        response = check_api_response(api_key)
+        print("APIレスポンス:", response)
+    except Exception as e:
+        print(f"エラーが発生しました: {e}")
+        exit(1)
+
+    print("すべてのチェックが完了しました。メイン処理を開始します...")
